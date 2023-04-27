@@ -51,9 +51,9 @@ def main():
                 if item['type'] == "number":
                     config[section_key][item['name']] = st.sidebar.number_input(
                         label=item['label'],
-                        min_value=item['min'],
-                        max_value=item['max'],
-                        value=config[section_key][item['name']],
+                        min_value=float(item['min']),
+                        max_value=float(item['max']),
+                        value=float(config[section_key][item['name']]),
                         help=item['help'])
 
                 elif item['type'] == "string":
@@ -109,16 +109,23 @@ def main():
     # Read data from measurement files
     freq_list = []
     z_measured_list = []
-    if measurement_files is not None and config_file is not None:
+    if measurement_files is not None:
+        type = config['general']['file types']
         for measurement_file in measurement_files:
             if type == "IM3590":
                 data = np.loadtxt(measurement_file, delimiter="\t")
                 freq = data[:, 0]
                 z_measured = data[:, 1] + 1j * data[:, 2]
+                freq_list.append(freq)
+                z_measured_list.append(z_measured)
+
             elif type == "FRA5095":
                 data = np.loadtxt(measurement_file, delimiter=",", skiprows=1)
                 freq = data[:, 1]
                 z_measured = data[:, 4] + 1j * data[:, 5]
+                freq_list.append(freq)
+                z_measured_list.append(z_measured)
+                
             elif type == "KFM2030":
                 for i in range(100):
                     try:
@@ -128,49 +135,15 @@ def main():
                         continue
                 freq = data[:, 0]
                 z_measured = data[:, 1] + 1j * data[:, 2]
-            # 各データファイルからfreq, z_measuredをリストに格納
-            freq_list.append(freq)
-            z_measured_list.append(z_measured)
+                freq_list.append(freq)
+                z_measured_list.append(z_measured)
     
-        # Read Configure File
-        # Load initial parameters
-        # config = yaml.load(config_file.getvalue(), Loader=yaml.SafeLoader)
-
-        # 
-        st.sidebar.header("Parameters")
-
-        if 'initials' in st.session_state:
-            initials = st.session_state['initials']
-        else:
-            initials = [param['initial'] for param in config['params']]
-
-        for i, param in enumerate(config['params']):
-            format = "%4.2e"
-
-            st.sidebar.subheader(
-                param['name'] + "(" + (param['unit'] if 'unit' in param else "-") + ")")
-
-            # これスライダーから変更した方がよさそう
-            # スライダーのバーは最小値と最大値に比例しないため、小さな数や大きな数を扱うのには不向きらしい
-            initials[i] = st.sidebar.slider(
-                label="Value",
-                min_value=float(param['min']),
-                max_value=float(param['max']),
-                value=float(initials[i]),
-                step=float(param['max']-param['min'])/100,
-                key=param['name'],
-                format=format
-            )
-            param_names.append(param['name'])
-            param_units.append(param['unit'] if 'unit' in param else "-")
-            param_lower_list.append(param['min'])
-            param_upper_list.append(param['max'])
-
-            param['max'] = st.sidebar.number_input(
-                label="Upper", key=param['name'] + " max", value=float(param['max']), format=format)
-            param['min'] = st.sidebar.number_input(
-                label="Lower", key=param['name'] + " min", value=float(param['min']), format=format)
-
+        # test
+        print(config)
+        print(freq_list)
+        print(z_measured_list)
+    
+        
     elif measurement_files is not None:
         print()
     

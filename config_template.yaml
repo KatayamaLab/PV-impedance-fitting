@@ -1,6 +1,6 @@
 general:
   title: 全体的な設定
-  item:
+  items:
     - name: result path
       label: フィッティング結果を入れるフォルダの場所/Path to contain result folder
       type: string
