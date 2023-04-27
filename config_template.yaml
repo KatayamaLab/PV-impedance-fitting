@@ -1,0 +1,36 @@
+general:
+  title: 全体的な設定
+  item:
+    - name: result path
+      label: フィッティング結果を入れるフォルダの場所/Path to contain result folder
+      type: string
+      help: 測定結果を入れるフォルダの親フォルダにあたります。
+    - name: file types
+      label: 測定データのタイプ/Type of data
+      type: selection
+      options: [IM3590, FRA5095, KFM2030]
+      help: 測定データのタイプを選べます。
+    - name: loss model
+      label: 目的関数のモデル/Loss model
+      type: selection
+      options: [leastsq, least_squares]
+      help: 測定データのタイプを選べます。
+    - name: error evaluation
+      label: 評価関数の種類
+      type: selection
+      options: [absolute, relative]
+      help: lossの計算式を選べます。
+    - name: upper frequency
+      label: フィッティングデータの周波数上限
+      type: number
+      min: 0
+      max: 1.0e+50  # 適当
+      help: フィッティングデータの最大周波数
+    - name: lower frequency
+      label: フィッティングデータの周波数下限
+      type: number
+      min: 0
+      max: 1.0e+50  # 適当
+      help: フィッティングデータの最小周波数
+params:
+  title: Parameters

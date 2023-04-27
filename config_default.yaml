@@ -1,0 +1,7 @@
+general:
+  result path: ./results/
+  file types: FRA5095
+  loss model: leastsq
+  error evaluation: absolute
+  upper frequency: 1.0e+30
+  lower frequency: 0

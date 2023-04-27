@@ -29,11 +29,82 @@ def main():
     # Create file upload form for  measurement data and configuration
     st.sidebar.title("Impedance fitting")
     st.sidebar.header("Input Files")
-    type = st.sidebar.radio(
-        "File Types", ("IM3590", "FRA5095", "KFM2030"))
+    # type = st.sidebar.radio(
+    #     "File Types", ("IM3590", "FRA5095", "KFM2030"))
     measurement_files = st.sidebar.file_uploader("Measurement Files", accept_multiple_files=True)
     config_file = st.sidebar.file_uploader("Configure File")
-    model = st.sidebar.radio("Loss Model", ("leastsq", "least_squares"))
+    # model = st.sidebar.radio("Loss Model", ("leastsq", "least_squares"))
+
+    # Load configulation file
+    with open("config_template.yaml", "r", encoding="utf-8") as f:
+        config_template = yaml.load(f, Loader=yaml.SafeLoader)
+
+    with open("config_default.yaml", "r", encoding="utf-8") as f:
+        config = yaml.load(f, Loader=yaml.SafeLoader)
+
+    if config_file is not None:
+        config = yaml.load(config_file.getvalue(), Loader=yaml.SafeLoader)
+    for (section_key, section) in zip(config_template.keys(), config_template.values()):
+        if section_key == "general":
+            st.sidebar.header(section['title'])
+            for item in section['items']:
+                if item['type'] == "number":
+                    config[section_key][item['name']] = st.sidebar.number_input(
+                        label=item['label'],
+                        min_value=item['min'],
+                        max_value=item['max'],
+                        value=config[section_key][item['name']],
+                        help=item['help'])
+
+                elif item['type'] == "string":
+                    config[section_key][item['name']] = st.sidebar.text_input(
+                        label=item['label'],
+                        value=config[section_key][item['name']],
+                        help=item['help'])
+
+                elif item['type'] == "selection":
+                    config[section_key][item['name']] = st.sidebar.selectbox(
+                        label=item['label'],
+                        options=item['options'],
+                        index=item['options']
+                        .index(config[section_key][item['name']]),
+                        help=item['help'])
+                    opt = item['options'].index(config[section_key][item['name']])
+
+        elif section_key == "params":
+            st.sidebar.header(section['title'])
+            if 'initials' in st.session_state:
+                initials = st.session_state['initials']
+            else:
+                initials = [param['initial'] for param in config['params']]
+
+            param_names = []
+            param_units = []
+            param_lowers = []
+            param_uppers = []
+            for i, param in enumerate(config['params']):
+                format = "%4.2e"
+                st.sidebar.subheader(
+                    param['name'] + "(" + (param['unit'] if 'unit' in param else "-") + ")")
+                initials[i] = st.sidebar.number_input(
+                    label="Value",
+                    min_value=float(param['min']),
+                    max_value=float(param['max']),
+                    value=float(initials[i]),
+                    step=float(param['max']-param['min'])/100,
+                    key=param['name'],
+                    format=format,
+                    help=item['help']
+                )
+                param_names.append(param['name'])
+                param_units.append(param['unit'] if 'unit' in param else "-")
+                param_lowers.append(param['min'])
+                param_uppers.append(param['max'])
+                
+                param['max'] = st.sidebar.number_input(
+                    label="Upper", key=param['name'] + " max", value=float(param['max']), format=format)
+                param['min'] = st.sidebar.number_input(
+                    label="Lower", key=param['name'] + " min", value=float(param['min']), format=format)
 
     # Read data from measurement files
     freq_list = []
@@ -63,7 +134,7 @@ def main():
     
         # Read Configure File
         # Load initial parameters
-        config = yaml.load(config_file.getvalue(), Loader=yaml.SafeLoader)
+        # config = yaml.load(config_file.getvalue(), Loader=yaml.SafeLoader)
 
         # 
         st.sidebar.header("Parameters")
@@ -100,6 +171,11 @@ def main():
             param['min'] = st.sidebar.number_input(
                 label="Lower", key=param['name'] + " min", value=float(param['min']), format=format)
 
+    elif measurement_files is not None:
+        print()
+    
+    elif config_file is not None:
+        print()
 
 
 if __name__ == '__main__':
