@@ -68,6 +68,38 @@ def main():
         # 
         st.sidebar.header("Parameters")
 
+        if 'initials' in st.session_state:
+            initials = st.session_state['initials']
+        else:
+            initials = [param['initial'] for param in config['params']]
+
+        for i, param in enumerate(config['params']):
+            format = "%4.2e"
+
+            st.sidebar.subheader(
+                param['name'] + "(" + (param['unit'] if 'unit' in param else "-") + ")")
+
+            # これスライダーから変更した方がよさそう
+            # スライダーのバーは最小値と最大値に比例しないため、小さな数や大きな数を扱うのには不向きらしい
+            initials[i] = st.sidebar.slider(
+                label="Value",
+                min_value=float(param['min']),
+                max_value=float(param['max']),
+                value=float(initials[i]),
+                step=float(param['max']-param['min'])/100,
+                key=param['name'],
+                format=format
+            )
+            param_names.append(param['name'])
+            param_units.append(param['unit'] if 'unit' in param else "-")
+            param_lower_list.append(param['min'])
+            param_upper_list.append(param['max'])
+
+            param['max'] = st.sidebar.number_input(
+                label="Upper", key=param['name'] + " max", value=float(param['max']), format=format)
+            param['min'] = st.sidebar.number_input(
+                label="Lower", key=param['name'] + " min", value=float(param['min']), format=format)
+
 
 
 if __name__ == '__main__':
