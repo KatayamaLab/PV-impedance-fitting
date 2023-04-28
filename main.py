@@ -53,13 +53,15 @@ def main():
                         min_value=float(item['min']),
                         max_value=float(item['max']),
                         value=float(config[section_key][item['name']]),
-                        help=item['help'])
+                        help=item['help']
+                    )
 
                 elif item['type'] == "string":
                     config[section_key][item['name']] = st.sidebar.text_input(
                         label=item['label'],
                         value=config[section_key][item['name']],
-                        help=item['help'])
+                        help=item['help']
+                    )
 
                 elif item['type'] == "selection":
                     config[section_key][item['name']] = st.sidebar.selectbox(
@@ -67,15 +69,16 @@ def main():
                         options=item['options'],
                         index=item['options']
                         .index(config[section_key][item['name']]),
-                        help=item['help'])
+                        help=item['help']
+                    )
                     opt = item['options'].index(config[section_key][item['name']])
 
         elif section_key == "params":
             st.sidebar.header(section['title'])
-            if 'initials' in st.session_state:
-                initials = st.session_state['initials']
-            else:
-                initials = [param['initial'] for param in config['params']]
+            # if 'initials' in st.session_state:
+            #     initials = st.session_state['initials']
+            # else:
+            #     initials = [param['initial'] for param in config['params']]
 
             param_names = []
             param_units = []
@@ -85,11 +88,11 @@ def main():
                 format = "%4.2e"
                 st.sidebar.subheader(
                     param['name'] + "(" + (param['unit'] if 'unit' in param else "-") + ")")
-                initials[i] = st.sidebar.number_input(
+                param['initial'] = st.sidebar.number_input(
                     label="Value",
                     min_value=float(param['min']),
                     max_value=float(param['max']),
-                    value=float(initials[i]),
+                    value=float(param['initial']),
                     step=float(param['max']-param['min'])/100,
                     key=param['name'],
                     format=format,
@@ -141,7 +144,7 @@ def main():
         print(config)
         print(freq_list)
         print(z_measured_list)
-    
+
         
     elif measurement_files is not None:
         print()
