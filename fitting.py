@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 # Non-preinstalled package
-from numpy.testing._private.utils import measure
 import streamlit as st
 from scipy.optimize import leastsq, least_squares, curve_fit
 import plotly.express as px

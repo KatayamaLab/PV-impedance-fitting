@@ -21,8 +21,10 @@ params:
     initial: 0.97
     max: 1
 
-fitting:
+general:
+  result path: ./results/
+  file types: FRA5095
+  loss model: leastsq
+  error evaluation: absolute  # absolute or relative
   upper frequency: 1.0e+30
-  lower frequency: 10.0
-
-error evaluation: absolute   # absolute or relative
+  lower frequency: 0
