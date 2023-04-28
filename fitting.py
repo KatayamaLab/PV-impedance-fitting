@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Non-preinstalled package
+# Non-preinstalled packages
 import streamlit as st
 from scipy.optimize import leastsq, least_squares, curve_fit
 import plotly.express as px
