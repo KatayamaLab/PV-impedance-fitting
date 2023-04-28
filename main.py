@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Non-preinstalled package
+# Non-preinstalled packages
 import streamlit as st
 from scipy.optimize import leastsq, least_squares, curve_fit
 import plotly.express as px
@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 import yaml
 from math import log10
+import fitting
 
 
 # Default packages
@@ -18,7 +19,6 @@ import builtins
 import base64
 import zipfile
 import io
-import fitting
 
 
 
