@@ -21,18 +21,14 @@ import zipfile
 import io
 
 
-
 def main():
     fit = fitting.FIT()
 
     # Create file upload form for  measurement data and configuration
     st.sidebar.title("Impedance fitting")
     st.sidebar.header("Input Files")
-    # type = st.sidebar.radio(
-    #     "File Types", ("IM3590", "FRA5095", "KFM2030"))
     measurement_files = st.sidebar.file_uploader("Measurement Files", accept_multiple_files=True)
     config_file = st.sidebar.file_uploader("Configure File")
-    # model = st.sidebar.radio("Loss Model", ("leastsq", "least_squares"))
 
     # Load configulation file
     with open("config_template.yaml", "r", encoding="utf-8") as f:
@@ -47,12 +43,14 @@ def main():
         if section_key == "general":
             st.sidebar.header(section['title'])
             for item in section['items']:
+                format = "%4.2e"
                 if item['type'] == "number":
                     config[section_key][item['name']] = st.sidebar.number_input(
                         label=item['label'],
                         min_value=float(item['min']),
                         max_value=float(item['max']),
                         value=float(config[section_key][item['name']]),
+                        format=format,
                         help=item['help']
                     )
 
@@ -109,10 +107,10 @@ def main():
                     label="Lower", key=param['name'] + " min", value=float(param['min']), format=format)
 
     # Read data from measurement files
-    freq_list = []
-    z_measured_list = []
     if measurement_files is not None:
         type = config['general']['file types']
+        freq_list = []
+        z_measured_list = []
         for measurement_file in measurement_files:
             if type == "IM3590":
                 data = np.loadtxt(measurement_file, delimiter="\t")

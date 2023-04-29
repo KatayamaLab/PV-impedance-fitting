@@ -10,14 +10,17 @@ params:
     min: 0
     initial: 1
     max: 100
+    unit: Ω
   - name: "Rp"
     min: 5000
     initial: 75000
     max: 80000
+    unit: Ω
   - name: "Tcpe"
     min: 0
     initial: 1.76e-9
     max: 2.0e-8
+    unit: Fs^(p-1)
   - name: "p"
     min: 0
     initial: 0.97
