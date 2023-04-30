@@ -40,6 +40,18 @@ class FIT():
         e = np.abs((z_ - z)/z_)
         return e
     
+    # Define loss function(absolute)
+    def loss_absolute_least_squares(self, param, func, f, z):
+        z_ = func(f, param)
+        e = np.abs(z_ - z) * np.sqrt(2)
+        return e
+
+    # Define loss function(relative)
+    def loss_relative_least_squares(self, param, func, f, z):
+        z_ = func(f, param)
+        e = np.abs(z_ - z) * np.sqrt(2)
+        return e
+    
     # Define fitting model
     def define_func(self, params, defs, expr):
         # Use 'func' as local namespace
@@ -59,22 +71,25 @@ class FIT():
         # Return defined 'func'
         return local['func']
     
-    def read_data(self, measurement_files, type="FRA5095-v2"):
+    def read_data(self, measurement_files, type="FRA5095"):
         data = self.data
+        freq_list = []
+        z_measured_list = []
         for measurement_file in measurement_files:
             if type == "IM3590":
                 data = np.loadtxt(measurement_file, delimiter="\t")
                 freq = data[:, 0]
                 z_measured = data[:, 1] + 1j * data[:, 2]
-            elif type == "FRA5095-v1":
-                data = np.loadtxt(measurement_file, delimiter=",", skiprows=1)
-                freq = data[:, 0]
-                z_measured = data[:, 1]*(np.cos(data[:, 2] * np.pi / 180) +
-                                        1j * np.sin(data[:, 2] * np.pi / 180))
-            elif type == "FRA5095-v2":
+                freq_list.append(freq)
+                z_measured_list.append(z_measured)
+
+            elif type == "FRA5095":
                 data = np.loadtxt(measurement_file, delimiter=",", skiprows=1)
                 freq = data[:, 1]
                 z_measured = data[:, 4] + 1j * data[:, 5]
+                freq_list.append(freq)
+                z_measured_list.append(z_measured)
+                
             elif type == "KFM2030":
                 for i in range(100):
                     try:
@@ -84,8 +99,10 @@ class FIT():
                         continue
                 freq = data[:, 0]
                 z_measured = data[:, 1] + 1j * data[:, 2]
+                freq_list.append(freq)
+                z_measured_list.append(z_measured)
 
-        return freq, z_measured
+        return freq_list, z_measured_list
     
     def read_config(config_file):
         # Load initial parameters
@@ -145,7 +162,7 @@ class FIT():
             index=["absolute", "relative"].index(config['error evaluation'])
         )
         return initials, param_names, param_units, param_lower_list, param_upper_list
-
+    
 
     @st.cache(hash_funcs={builtins.complex: lambda _: hash(abs(_))})
     def fit(initials, func, freq, z_measured, param_lower_list, param_upper_list, error_eval="absolute", fit_func="leastsq"):

@@ -39,6 +39,7 @@ def main():
 
     if config_file is not None:
         config = yaml.load(config_file.getvalue(), Loader=yaml.SafeLoader)
+
     for (section_key, section) in zip(config_template.keys(), config_template.values()):
         if section_key == "general":
             st.sidebar.header(section['title'])
@@ -82,7 +83,7 @@ def main():
             param_units = []
             param_lowers = []
             param_uppers = []
-            for i, param in enumerate(config['params']):
+            for param in config['params']:
                 format = "%4.2e"
                 st.sidebar.subheader(
                     param['name'] + "(" + (param['unit'] if 'unit' in param else "-") + ")")
@@ -109,39 +110,23 @@ def main():
     # Read data from measurement files
     if measurement_files is not None:
         type = config['general']['file types']
-        freq_list = []
-        z_measured_list = []
-        for measurement_file in measurement_files:
-            if type == "IM3590":
-                data = np.loadtxt(measurement_file, delimiter="\t")
-                freq = data[:, 0]
-                z_measured = data[:, 1] + 1j * data[:, 2]
-                freq_list.append(freq)
-                z_measured_list.append(z_measured)
-
-            elif type == "FRA5095":
-                data = np.loadtxt(measurement_file, delimiter=",", skiprows=1)
-                freq = data[:, 1]
-                z_measured = data[:, 4] + 1j * data[:, 5]
-                freq_list.append(freq)
-                z_measured_list.append(z_measured)
-                
-            elif type == "KFM2030":
-                for i in range(100):
-                    try:
-                        data = np.loadtxt(measurement_file, skiprows=i, delimiter='\t')
-                        break
-                    except ValueError:
-                        continue
-                freq = data[:, 0]
-                z_measured = data[:, 1] + 1j * data[:, 2]
-                freq_list.append(freq)
-                z_measured_list.append(z_measured)
+        freq_list, z_measured_list = fit.read_data(measurement_files, type)
     
         # test
-        print(config)
-        print(freq_list)
-        print(z_measured_list)
+        # print(config)
+        # print(freq_list)
+        # print(z_measured_list)
+
+        # Set equivalent circuit function
+        func = fit.define_func(config['params'],
+                               config['func']['defs'],
+                               config['func']['expr'])
+        
+
+        st.header("Results")
+        if st.button("Fit!", help="Do Fitting!"):
+            print(func)
+
 
         
     elif measurement_files is not None:
