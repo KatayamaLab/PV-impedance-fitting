@@ -71,38 +71,29 @@ class FIT():
         # Return defined 'func'
         return local['func']
     
-    def read_data(self, measurement_files, type="FRA5095"):
+    def read_data(self, measurement_file, type="FRA5095"):
         data = self.data
-        freq_list = []
-        z_measured_list = []
-        for measurement_file in measurement_files:
-            if type == "IM3590":
-                data = np.loadtxt(measurement_file, delimiter="\t")
-                freq = data[:, 0]
-                z_measured = data[:, 1] + 1j * data[:, 2]
-                freq_list.append(freq)
-                z_measured_list.append(z_measured)
+        if type == "IM3590":
+            data = np.loadtxt(measurement_file, delimiter="\t")
+            freq = data[:, 0]
+            z_measured = data[:, 1] + 1j * data[:, 2]
 
-            elif type == "FRA5095":
-                data = np.loadtxt(measurement_file, delimiter=",", skiprows=1)
-                freq = data[:, 1]
-                z_measured = data[:, 4] + 1j * data[:, 5]
-                freq_list.append(freq)
-                z_measured_list.append(z_measured)
-                
-            elif type == "KFM2030":
-                for i in range(100):
-                    try:
-                        data = np.loadtxt(measurement_file, skiprows=i, delimiter='\t')
-                        break
-                    except ValueError:
-                        continue
-                freq = data[:, 0]
-                z_measured = data[:, 1] + 1j * data[:, 2]
-                freq_list.append(freq)
-                z_measured_list.append(z_measured)
+        elif type == "FRA5095":
+            data = np.loadtxt(measurement_file, delimiter=",", skiprows=1)
+            freq = data[:, 1]
+            z_measured = data[:, 4] + 1j * data[:, 5]
+            
+        elif type == "KFM2030":
+            for i in range(100):
+                try:
+                    data = np.loadtxt(measurement_file, skiprows=i, delimiter='\t')
+                    break
+                except ValueError:
+                    continue
+            freq = data[:, 0]
+            z_measured = data[:, 1] + 1j * data[:, 2]
 
-        return freq_list, z_measured_list
+        return freq, z_measured
     
     def read_config(config_file):
         # Load initial parameters
@@ -165,36 +156,44 @@ class FIT():
     
 
     @st.cache(hash_funcs={builtins.complex: lambda _: hash(abs(_))})
-    def fit(initials, func, freq, z_measured, param_lower_list, param_upper_list, error_eval="absolute", fit_func="leastsq"):
+    def fit(self, initials, func, freq, z_measured, param_lowers, param_uppers, error_eval="absolute", model="leastsq"):
         # Perform fitting and output results
-        if error_eval == "absolute":
-            if fit_func == "leastsq":
-                param_result = leastsq(loss_absolute, initials,
-                                    args=(func, freq, z_measured))
-                loss = np.average(loss_absolute(
-                    param_result[0], func, freq, z_measured))
-                param_list = param_result[0]
-            elif fit_func == "least_squares":
-                param_result = least_squares(loss_absolute, initials,
-                                            args=(func, freq, z_measured), bounds=(param_lower_list, param_upper_list))
-                loss = np.average(loss_absolute(
-                    param_result.x, func, freq, z_measured))
-                param_list = param_result.x
-        elif error_eval == "relative":
-            if fit_func == "leastsq":
-                param_result = leastsq(loss_relative, initials,
-                                    args=(func, freq, z_measured))
-                loss = np.average(loss_absolute(
-                    param_result[0], func, freq, z_measured))
-                param_list = param_result[0]
-            elif fit_func == "least_squares":
-                param_result = least_squares(loss_absolute, initials,
-                                            args=(func, freq, z_measured), bounds=(param_lower_list, param_upper_list))
-                loss = np.average(loss_absolute(
-                    param_result.x, func, freq, z_measured))
-                param_list = param_result.x
+        try:
+            if error_eval == "absolute":
+                if model == "leastsq":
+                    param_result = leastsq(loss_absolute, initials,
+                                        args=(func, freq, z_measured))
+                    loss = np.average(loss_absolute(param_result[0],
+                                                    func, freq, z_measured))
+                    param_list = param_result[0]
+                elif model == "least_squares":
+                    param_result = least_squares(loss_absolute_least_squares, initials,
+                                                args=(func, freq, z_measured), bounds=(param_lowers, param_uppers))
+                    loss = np.average(loss_absolute_least_squares(param_result.x,
+                                                                func, freq, z_measured))
+                    param_list = param_result.x
 
-        return param_list, loss
+            elif error_eval == "relative":
+                if model == "leastsq":
+                    param_result = leastsq(loss_relative, initials,
+                                        args=(func, freq, z_measured))
+                    loss = np.average(loss_relative(param_result[0],
+                                                    func, freq, z_measured))
+                    param_list = param_result[0]
+                elif model == "least_squares":
+                    param_result = least_squares(loss_relative_least_squares, initials,
+                                                args=(func, freq, z_measured), bounds=(param_lowers, param_uppers))
+                    loss = np.average(loss_relative_least_squares(param_result.x,
+                                                                func, freq, z_measured))
+                    param_list = param_result.x
+        
+            return param_list, loss
+        
+        except Exception as e:
+            print(e)
+            self.error = True
+            self.errors.append("fit")
+            return -1, -1
 
 
     def show_data(freq, z_measured=None, z_calc=None, param_names=None, param_values=None, param_units=None, loss=None):

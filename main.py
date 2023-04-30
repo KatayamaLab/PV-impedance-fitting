@@ -80,9 +80,10 @@ def main():
             #     initials = [param['initial'] for param in config['params']]
 
             param_names = []
-            param_units = []
+            initials = []
             param_lowers = []
             param_uppers = []
+            param_units = []
             for param in config['params']:
                 format = "%4.2e"
                 st.sidebar.subheader(
@@ -97,36 +98,61 @@ def main():
                     format=format,
                     help=item['help']
                 )
-                param_names.append(param['name'])
-                param_units.append(param['unit'] if 'unit' in param else "-")
-                param_lowers.append(param['min'])
-                param_uppers.append(param['max'])
-                
                 param['max'] = st.sidebar.number_input(
                     label="Upper", key=param['name'] + " max", value=float(param['max']), format=format)
                 param['min'] = st.sidebar.number_input(
                     label="Lower", key=param['name'] + " min", value=float(param['min']), format=format)
+                param_names.append(param['name'])
+                initials.append(param['initial'])
+                param_lowers.append(param['min'])
+                param_uppers.append(param['max'])
+                param_units.append(param['unit'] if 'unit' in param else "-")
+                
 
     # Read data from measurement files
     if measurement_files is not None:
         type = config['general']['file types']
-        freq_list, z_measured_list = fit.read_data(measurement_files, type)
-    
-        # test
-        # print(config)
-        # print(freq_list)
-        # print(z_measured_list)
+        model = config['general']['loss model']
+        error_eval = config['general']['error evaluation']
 
         # Set equivalent circuit function
         func = fit.define_func(config['params'],
-                               config['func']['defs'],
-                               config['func']['expr'])
+                            config['func']['defs'],
+                            config['func']['expr'])
         
+        for measurement_file in measurement_files:
+            freq, z_measured = fit.read_data(measurement_file, type)
 
-        st.header("Results")
-        if st.button("Fit!", help="Do Fitting!"):
-            print(func)
+            st.header("Results")
 
+            # Fitting
+            if st.button("Fit!", help="Do Fitting!"):
+                freq_ = []
+                z_measured_ = []
+                for f, z in zip(freq, z_measured):
+                    if config['general']['lower frequency'] <= float(f) <= config['general']['upper frequency']:
+                        freq_.append(f)
+                        z_measured_.append(z)
+                    else:
+                        pass    # 指定範囲外のfとzは除外
+                freq_ = np.array(freq_)
+                z_measured_ = np.array(z_measured_)
+
+                # Do fitting
+                param_values, loss = fit.fit(initials, func, freq_, z_measured_,
+                                             param_lowers, param_uppers, error_eval, model)
+
+
+            
+
+
+            # test
+            # print(config)
+            # print(freq_list)
+            # print(z_measured_list)
+            # print(freq_)
+            # print(z_measured_)
+            # print(initials)
 
         
     elif measurement_files is not None:
