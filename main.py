@@ -2,16 +2,15 @@
 
 # Non-preinstalled packages
 import streamlit as st
-from scipy.optimize import leastsq, least_squares, curve_fit
-import plotly.express as px
+from scipy.optimize import leastsq, least_squares
+import yaml
 import numpy as np
 import pandas as pd
-import yaml
-from math import log10
+import plotly.express as px
 import fitting
 
-
 # Default packages
+from math import log10
 import os
 import datetime
 import re
