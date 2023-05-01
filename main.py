@@ -150,15 +150,21 @@ def main():
                 # フィッティング結果を再利用するためにinitials_tempに一旦格納
                 initials_temp = param_values
                 loss_temp = loss    # lossが消えるのを防止
+            
+            # Show data
+            z_calc = func(freq, param_values)
+            fit.show_data(freq, z_measured, z_calc, param_names,
+                        param_values, param_units, loss)
         
         else:
             param_values = initials
             loss = None
         
-        # Show data of first file
-        freq, z_measured = fit.read_data(measurement_files[0], type)
-        print(freq)
-        fit.show_data(freq, z_measured)
+            # Show data
+            freq, z_measured = fit.read_data(measurement_files[0], type)
+            z_calc = func(freq, param_values)
+            fit.show_data(freq, z_measured, z_calc, param_names,
+                        param_values, param_units, loss)
             
 
 

@@ -137,9 +137,9 @@ class FIT():
             return -1, -1
 
 
-    def show_data(freq, z_measured=None, z_calc=None, param_names=None, param_values=None, param_units=None, loss=None):
+    def show_data(self, freq, z_measured=None, z_calc=None, param_names=None, param_values=None, param_units=None, loss=None):
         # Convert measured impedance data to pandas dataframe
-
+        
         # Add calculated impedanca data to pandas dataframe
         if z_calc is None:
             df_graph = pd.DataFrame(
@@ -177,8 +177,7 @@ class FIT():
         st.plotly_chart(fig, use_container_width=True)
 
         # Display impedanca data
-        print(df_z)
-        # st.dataframe(df_z)
+        st.dataframe(df_z)
 
         # Display parameters
         if param_names is not None or param_values is not None:
