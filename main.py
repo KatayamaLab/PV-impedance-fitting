@@ -73,11 +73,8 @@ def main():
                     opt = item['options'].index(config[section_key][item['name']])
 
         elif section_key == "params":
+            # Set initial parameter and create slide bar
             st.sidebar.header(section['title'])
-            # if 'initials' in st.session_state:
-            #     initials = st.session_state['initials']
-            # else:
-            #     initials = [param['initial'] for param in config['params']]
 
             param_names = []
             initials = []
@@ -107,26 +104,28 @@ def main():
                 param_lowers.append(param['min'])
                 param_uppers.append(param['max'])
                 param_units.append(param['unit'] if 'unit' in param else "-")
-                
+    
+    # Set 'general' setting
+    type = config['general']['file types']
+    model = config['general']['loss model']
+    error_eval = config['general']['error evaluation']
 
-    # Read data from measurement files
-    if measurement_files is not None:
-        type = config['general']['file types']
-        model = config['general']['loss model']
-        error_eval = config['general']['error evaluation']
+    # Set equivalent circuit function
+    func = fit.define_func(config['params'],
+                        config['func']['defs'],
+                        config['func']['expr'])
 
-        # Set equivalent circuit function
-        func = fit.define_func(config['params'],
-                            config['func']['defs'],
-                            config['func']['expr'])
-        
-        for measurement_file in measurement_files:
-            freq, z_measured = fit.read_data(measurement_file, type)
+    st.header("Results")
 
-            st.header("Results")
+    if measurement_files:
+        # Fitting
+        if st.button("Fit!", help="Do Fitting!"):
 
-            # Fitting
-            if st.button("Fit!", help="Do Fitting!"):
+            initials_temp = []
+            for measurement_file in measurement_files:
+                # Read data from measurement files
+                freq, z_measured = fit.read_data(measurement_file, type)
+
                 freq_ = []
                 z_measured_ = []
                 for f, z in zip(freq, z_measured):
@@ -138,11 +137,28 @@ def main():
                 freq_ = np.array(freq_)
                 z_measured_ = np.array(z_measured_)
 
+                # 一つ前のフィッティング結果を再利用する
+                if initials_temp:
+                    initials = initials_temp
+                else:
+                    pass
+
                 # Do fitting
                 param_values, loss = fit.fit(initials, func, freq_, z_measured_,
-                                             param_lowers, param_uppers, error_eval, model)
+                                                param_lowers, param_uppers, error_eval, model)
 
-
+                # フィッティング結果を再利用するためにinitials_tempに一旦格納
+                initials_temp = param_values
+                loss_temp = loss    # lossが消えるのを防止
+        
+        else:
+            param_values = initials
+            loss = None
+        
+        # Show data of first file
+        freq, z_measured = fit.read_data(measurement_files[0], type)
+        print(freq)
+        fit.show_data(freq, z_measured)
             
 
 
@@ -155,9 +171,9 @@ def main():
             # print(initials)
 
         
-    elif measurement_files is not None:
+    elif measurement_files:
         print()
-    
+
     elif config_file is not None:
         print()
 

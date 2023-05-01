@@ -32,6 +32,7 @@ class FIT():
     def loss_absolute(self, param, func, f, z):
         z_ = func(f, param)
         e = np.abs(z_ - z)
+        # print(e)
         return e
 
     # Define loss function(relative)
@@ -94,66 +95,6 @@ class FIT():
             z_measured = data[:, 1] + 1j * data[:, 2]
 
         return freq, z_measured
-    
-    def read_config(config_file):
-        # Load initial parameters
-        config = yaml.load(config_file.getvalue(), Loader=yaml.SafeLoader)
-        return config
-
-    def draw_settings(config):
-        # Set initial parameter and create slide bar
-        st.sidebar.header("Parameters")
-
-        if 'initials' in st.session_state:
-            initials = st.session_state['initials']
-        else:
-            initials = [param['initial'] for param in config['params']]
-
-        param_names = []
-        param_units = []
-        param_lower_list = []
-        param_upper_list = []
-        for i, param in enumerate(config['params']):
-            format = "%4.2e"
-
-            st.sidebar.subheader(
-                param['name'] + "(" + (param['unit'] if 'unit' in param else "-") + ")")
-
-            initials[i] = st.sidebar.slider(
-                label="Value",
-                min_value=float(param['min']),
-                max_value=float(param['max']),
-                value=float(initials[i]),
-                step=float(param['max']-param['min'])/100,
-                key=param['name'],
-                format=format
-            )
-            param_names.append(param['name'])
-            param_units.append(param['unit'] if 'unit' in param else "-")
-            param_lower_list.append(param['min'])
-            param_upper_list.append(param['max'])
-
-            param['max'] = st.sidebar.number_input(
-                label="Upper", key=param['name'] + " max", value=float(param['max']), format=format)
-            param['min'] = st.sidebar.number_input(
-                label="Lower", key=param['name'] + " min", value=float(param['min']), format=format)
-
-        st.session_state['initials'] = initials
-
-        st.sidebar.header("Other settings")
-        config['fitting']['upper frequency'] = st.sidebar.number_input(
-            "Upper frequency", value=float(config['fitting']['upper frequency']))
-        config['fitting']['lower frequency'] = st.sidebar.number_input(
-            "Lower frequency", value=float(config['fitting']['lower frequency']))
-
-        # Error settings
-        config['error evaluation'] = st.sidebar.selectbox(
-            label="Error evaluation",
-            options=["absolute", "relative"],
-            index=["absolute", "relative"].index(config['error evaluation'])
-        )
-        return initials, param_names, param_units, param_lower_list, param_upper_list
-    
 
     @st.cache(hash_funcs={builtins.complex: lambda _: hash(abs(_))})
     def fit(self, initials, func, freq, z_measured, param_lowers, param_uppers, error_eval="absolute", model="leastsq"):
@@ -161,29 +102,29 @@ class FIT():
         try:
             if error_eval == "absolute":
                 if model == "leastsq":
-                    param_result = leastsq(loss_absolute, initials,
+                    param_result = leastsq(self.loss_absolute, initials,
                                         args=(func, freq, z_measured))
-                    loss = np.average(loss_absolute(param_result[0],
+                    loss = np.average(self.loss_absolute(param_result[0],
                                                     func, freq, z_measured))
                     param_list = param_result[0]
                 elif model == "least_squares":
-                    param_result = least_squares(loss_absolute_least_squares, initials,
+                    param_result = least_squares(self.loss_absolute_least_squares, initials,
                                                 args=(func, freq, z_measured), bounds=(param_lowers, param_uppers))
-                    loss = np.average(loss_absolute_least_squares(param_result.x,
+                    loss = np.average(self.loss_absolute_least_squares(param_result.x,
                                                                 func, freq, z_measured))
                     param_list = param_result.x
 
             elif error_eval == "relative":
                 if model == "leastsq":
-                    param_result = leastsq(loss_relative, initials,
+                    param_result = leastsq(self.loss_relative, initials,
                                         args=(func, freq, z_measured))
-                    loss = np.average(loss_relative(param_result[0],
+                    loss = np.average(self.loss_absolute(param_result[0],
                                                     func, freq, z_measured))
                     param_list = param_result[0]
                 elif model == "least_squares":
-                    param_result = least_squares(loss_relative_least_squares, initials,
+                    param_result = least_squares(self.loss_relative_least_squares, initials,
                                                 args=(func, freq, z_measured), bounds=(param_lowers, param_uppers))
-                    loss = np.average(loss_relative_least_squares(param_result.x,
+                    loss = np.average(self.loss_absolute_least_squares(param_result.x,
                                                                 func, freq, z_measured))
                     param_list = param_result.x
         
@@ -214,7 +155,6 @@ class FIT():
                 "freq": freq,
                 "z_real_calc": z_calc.real, "z_imag_calc": z_calc.imag
             })
-
         else:
             df_graph = pd.concat([
                 pd.DataFrame(
@@ -237,7 +177,8 @@ class FIT():
         st.plotly_chart(fig, use_container_width=True)
 
         # Display impedanca data
-        st.dataframe(df_z)
+        print(df_z)
+        # st.dataframe(df_z)
 
         # Display parameters
         if param_names is not None or param_values is not None:
