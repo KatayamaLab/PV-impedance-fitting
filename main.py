@@ -120,8 +120,8 @@ def main():
     if measurement_files:
         # Fitting
         if st.button("Fit!", help="Do Fitting!"):
-
-            initials_temp = []
+            
+            initials_temp = np.empty(0) # 空のndarray配列を生成
             for measurement_file in measurement_files:
                 # Read data from measurement files
                 freq, z_measured = fit.read_data(measurement_file, type)
@@ -138,7 +138,7 @@ def main():
                 z_measured_ = np.array(z_measured_)
 
                 # 一つ前のフィッティング結果を再利用する
-                if initials_temp:
+                if initials_temp.size != 0:
                     initials = initials_temp
                 else:
                     pass
@@ -151,7 +151,7 @@ def main():
                 initials_temp = param_values
                 loss_temp = loss    # lossが消えるのを防止
             
-            # Show data
+            # Show last data
             z_calc = func(freq, param_values)
             fit.show_data(freq, z_measured, z_calc, param_names,
                         param_values, param_units, loss)
@@ -160,13 +160,12 @@ def main():
             param_values = initials
             loss = None
         
-            # Show data
+            # Show first data
             freq, z_measured = fit.read_data(measurement_files[0], type)
             z_calc = func(freq, param_values)
             fit.show_data(freq, z_measured, z_calc, param_names,
                         param_values, param_units, loss)
             
-
 
             # test
             # print(config)
@@ -176,12 +175,17 @@ def main():
             # print(z_measured_)
             # print(initials)
 
-        
-    elif measurement_files:
-        print()
-
     elif config_file is not None:
-        print()
+        # if only configuration file is available, show theoritical data
+        freq = fit.get_freq(config['general']['lower frequency'],
+                            config['general']['upper frequency'])
+
+        # Calculate impedance using fit parameters
+        z_calc = func(freq, initials)
+
+        # Show data
+        fit.show_data(freq=freq, z_calc=z_calc, param_names=param_names,
+                  param_values=initials, param_units=param_units)
 
 
 if __name__ == '__main__':

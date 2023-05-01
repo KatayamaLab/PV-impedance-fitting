@@ -136,7 +136,6 @@ class FIT():
             self.errors.append("fit")
             return -1, -1
 
-
     def show_data(self, freq, z_measured=None, z_calc=None, param_names=None, param_values=None, param_units=None, loss=None):
         # Convert measured impedance data to pandas dataframe
         
@@ -239,7 +238,7 @@ class FIT():
         return f'<a href="data:application/zip;base64,{b64}">Download zip file</a>'
 
 
-    def get_freq(lower, upper, step=None):
+    def get_freq(self, lower, upper, step=None):
         if lower <= 0:
             lower = 1e-8
         if upper < lower:
