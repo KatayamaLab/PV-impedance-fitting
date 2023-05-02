@@ -1,5 +1,5 @@
 general:
-  title: 全体的な設定
+  title: General config
   items:
     - name: result path
       label: フィッティング結果を入れるフォルダの場所/Path to contain result folder
@@ -10,6 +10,9 @@ general:
       type: selection
       options: [IM3590, FRA5095, KFM2030]
       help: 測定データのタイプを選べます。
+fitting:
+  title: Fitting config
+  items:
     - name: loss model
       label: 目的関数のモデル/Loss model
       type: selection

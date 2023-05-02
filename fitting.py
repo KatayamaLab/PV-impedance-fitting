@@ -17,6 +17,7 @@ import builtins
 import base64
 import zipfile
 import io
+import shutil
 
 class FIT():
     def __init__(self):
@@ -73,6 +74,7 @@ class FIT():
     
     def read_data(self, measurement_file, type="FRA5095"):
         data = self.data
+        voltages = []
         if type == "IM3590":
             data = np.loadtxt(measurement_file, delimiter="\t")
             freq = data[:, 0]
@@ -82,6 +84,10 @@ class FIT():
             data = np.loadtxt(measurement_file, delimiter=",", skiprows=1)
             freq = data[:, 1]
             z_measured = data[:, 4] + 1j * data[:, 5]
+            voltages.append(data[1, 6]) # set DC voltage
+            voltages.append(data[1, 7]) # DC voltage
+            voltages.append(data[1, 8]) # set AC voltage
+            voltages.append(data[1, 9]) # AC voltage
             
         elif type == "KFM2030":
             for i in range(100):
@@ -93,7 +99,7 @@ class FIT():
             freq = data[:, 0]
             z_measured = data[:, 1] + 1j * data[:, 2]
 
-        return freq, z_measured
+        return freq, z_measured, voltages
 
     @st.cache(hash_funcs={builtins.complex: lambda _: hash(abs(_))})
     def fit(self, initials, func, freq, z_measured, param_lowers, param_uppers, error_eval="absolute", model="leastsq"):
@@ -186,7 +192,7 @@ class FIT():
         st.text("Mean square error: {}".format(loss))
 
 
-    def save_data(comment, freq, z_measured, z_calc,
+    def save_data(self, comment, freq, z_measured, z_calc,
                 param_names, param_values, param_units, config):
         # Remove prohibited characters from path name.
         comment = re.sub(r'[\\/:*?"<>|]+', ' ', comment)
@@ -228,6 +234,54 @@ class FIT():
                         arcname='condition.yaml')
 
         return zip_stream.getvalue()
+    
+    def save_temporary_data(self, dir_name, freq, z_measured, z_calc, param_names, param_values, param_units, config):
+        # Remove prohibited characters from path name.
+        dir_name = re.sub(r'[\\/:*?"<>|]+', ' ', dir_name)
+
+        # Make path to save temporary data
+        result_dir = os.path.join(
+            './temporary',
+            dir_name
+        )
+        os.makedirs(result_dir, exist_ok=True)
+
+        # Save data via pandas
+        pd.DataFrame(
+            {"freq": freq,
+            "z_real_measured": z_measured.real, "z_imag_measured": z_measured.imag,
+            "z_real_calc": z_calc.real, "z_imag_calc": z_calc.imag}
+        ).to_csv(os.path.join(result_dir, "impedance.csv"))
+
+        pd.DataFrame(
+            {'Name': param_names, 'Value': param_values, 'Unit': param_units}
+        ).to_csv(os.path.join(result_dir, "parameters.csv"))
+
+        # Save fitting condition as yaml
+        with open(os.path.join(result_dir, "condition.yaml"), "wb") as f:
+            f.write(yaml.dump(config, encoding="utf-8", allow_unicode=True))
+
+    def save_all_parameters(self, all_parameters, param_names):
+        all_param_names = ["set_DC_volt", "DC_volt", "set_AC_volt", "AC_volt"]
+        all_param_names.extend(list(param_names))
+        print(all_param_names, all_parameters)
+        pd.DataFrame(data=np.array(all_parameters), columns=all_param_names
+                     ).to_csv(os.path.join('./temporary', "all_parameters.csv"))
+
+    def move_data(self, comment, path_results):
+        # Remove prohibited characters from path name.
+        comment = re.sub(r'[\\/:*?"<>|]+', ' ', comment)
+
+        # Make path to save data
+        result_dir = os.path.join(
+            path_results,
+            datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S_') +
+            comment
+        )
+        os.makedirs(result_dir, exist_ok=True)
+
+        for p in os.listdir('./temporary'):
+            shutil.move(os.path.join('./temporary', p), result_dir)
 
 
     def get_download_link(zip_str):
