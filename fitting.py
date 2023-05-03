@@ -7,6 +7,7 @@ import yaml
 import numpy as np
 import pandas as pd
 import plotly.express as px
+import matplotlib.pyplot as plt
 
 # Default packages
 from math import log10
@@ -214,7 +215,21 @@ class FIT():
         with open(os.path.join(result_dir, "condition.yaml"), "wb") as f:
             f.write(yaml.dump(config, encoding="utf-8", allow_unicode=True))
 
-        
+        # Save graph by matplotlib
+        z_measured_imag_fig = z_measured.imag * -1
+        z_calc_imag_fig = z_calc.imag * -1
+        fig = plt.figure(figsize=(16, 9))
+        plt.scatter(z_measured.real, z_measured_imag_fig, s=50, marker="o", label="Measured", zorder=2)
+        plt.scatter(z_calc.real, z_calc_imag_fig, s=50, marker="x", label="Fit", zorder=2)
+        plt.xlabel("$Z'$" + " [Ω]", fontsize = 18)
+        plt.ylabel("$-Z''$" + " [Ω]", fontsize = 18)
+        plt.xticks(fontsize = 15)
+        plt.yticks(fontsize = 15)
+        plt.legend(bbox_to_anchor=(1,1), loc='upper left', frameon=False, fontsize=15)
+        plt.grid(linestyle="--", zorder=1)
+        plt.gca().set_aspect('equal', adjustable='box')
+        plt.tight_layout()
+        fig.savefig(os.path.join(result_dir, "figure.png"))
 
     def save_all_parameters(self, all_parameter_values, param_names):
         all_parameter_names = ["set_DC_volt", "DC_volt", "set_AC_volt", "AC_volt"]

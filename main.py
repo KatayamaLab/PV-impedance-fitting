@@ -166,7 +166,9 @@ def main():
                                             param_names, param_values, param_units, config)
                     
                     # Generate a csv file with all parameters organized
-                    all_parameter_values.append(voltages.extend(list(param_values)))
+                    voltages.extend(list(param_values))
+                    all_parameter_values_ = voltages
+                    all_parameter_values.append(all_parameter_values_)
                     fit.save_all_parameters(all_parameter_values, param_names)
             
             # Show last data
