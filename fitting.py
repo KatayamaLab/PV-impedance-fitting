@@ -261,11 +261,10 @@ class FIT():
         with open(os.path.join(result_dir, "condition.yaml"), "wb") as f:
             f.write(yaml.dump(config, encoding="utf-8", allow_unicode=True))
 
-    def save_all_parameters(self, all_parameters, param_names):
-        all_param_names = ["set_DC_volt", "DC_volt", "set_AC_volt", "AC_volt"]
-        all_param_names.extend(list(param_names))
-        print(all_param_names, all_parameters)
-        pd.DataFrame(data=np.array(all_parameters), columns=all_param_names
+    def save_all_parameters(self, all_parameter_values, param_names):
+        all_parameter_names = ["set_DC_volt", "DC_volt", "set_AC_volt", "AC_volt"]
+        all_parameter_names.extend(list(param_names))
+        pd.DataFrame(data=np.array(all_parameter_values), columns=all_parameter_names
                      ).to_csv(os.path.join('./temporary', "all_parameters.csv"))
 
     def move_data(self, comment, path_results):

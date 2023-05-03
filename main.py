@@ -118,14 +118,15 @@ def main():
 
     if measurement_files:
 
-        # フィッティング結果ごとのディレクトリ名を入力
+        # Depending on the number of files uploaded, generate an input form 
+        # for the directory name to store the individual fitting results.
         dir_names = []
         for i in range(len(measurement_files)):
             dir_name = st.text_input(
-                label=str(i+1) + "つ目のリザルトディレクトリ名",
+                label= "Result directory " + str(i+1),
                 max_chars=50,
                 value="result" + str(i+1),
-                help="リザルトディレクトリ名"
+                help="フィッティング結果ごとのディレクトリ名に当たります。"
             )
             dir_names.append(dir_name)
 
@@ -134,12 +135,14 @@ def main():
         # Fitting
         if st.button("Fit!", help="Do Fitting!"):
 
-            initials_temp = np.empty(0) # 空のndarray配列を生成
-            all_parameters = [] # 空のlistを生成
+            initials_temp = np.empty(0) # Create a empty ndarray
+            all_parameter_values = [] # Create a empty list
             for (measurement_file, dir_name) in zip(measurement_files, dir_names):
+
                 # Read data from measurement files
                 freq, z_measured, voltages = fit.read_data(measurement_file, type)
 
+                # Set frequency range and z_measured range
                 freq_ = []
                 z_measured_ = []
                 for f, z in zip(freq, z_measured):
@@ -151,7 +154,7 @@ def main():
                 freq_ = np.array(freq_)
                 z_measured_ = np.array(z_measured_)
 
-                # 一つ前のフィッティング結果を再利用する
+                # Use last fitting results, if any.
                 if initials_temp.size != 0:
                     initials = initials_temp
                 else:
@@ -161,7 +164,7 @@ def main():
                 param_values, loss = fit.fit(initials, func, freq_, z_measured_,
                                                 param_lowers, param_uppers, error_eval, model)
 
-                # フィッティング結果を再利用するためにinitials_tempに一旦格納
+                # Keep fitting results temporarily.
                 initials_temp = param_values
 
                 # Calculate impedance using fitted parameters
@@ -175,9 +178,8 @@ def main():
                                             param_names, param_values, param_units, config)
                     
                     # フィッティングパラメータの統合ファイルを生成
-                    voltages.extend(list(param_values))
-                    all_parameters.append(voltages)
-                    fit.save_all_parameters(all_parameters, param_names)
+                    all_parameter_values.append(voltages.extend(list(param_values)))
+                    fit.save_all_parameters(all_parameter_values, param_names)
             
             # Show last data
             fit.show_data(freq, z_measured, z_calc, param_names,
