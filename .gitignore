@@ -1,6 +1,7 @@
 # Ignore firectories and files(Items set by the developer)
-# results/*
-# temporary/*
+results/*
+!results/sample-results
+temporary/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
