@@ -1,3 +1,7 @@
+# Ignore firectories and files(Items set by the developer)
+./results/*
+./temporary/*
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

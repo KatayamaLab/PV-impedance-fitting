@@ -27,6 +27,8 @@ params:
 general:
   result path: ./results/
   file types: FRA5095
+
+fitting:
   loss model: leastsq
   error evaluation: absolute  # absolute or relative
   upper frequency: 1.0e+30

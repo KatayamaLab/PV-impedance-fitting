@@ -2,22 +2,9 @@
 
 # Non-preinstalled packages
 import streamlit as st
-from scipy.optimize import leastsq, least_squares
 import yaml
 import numpy as np
-import pandas as pd
-import plotly.express as px
 import fitting
-
-# Default packages
-from math import log10
-import os
-import datetime
-import re
-import builtins
-import base64
-import zipfile
-import io
 
 
 def main():
@@ -39,6 +26,7 @@ def main():
     if config_file is not None:
         config = yaml.load(config_file.getvalue(), Loader=yaml.SafeLoader)
 
+    # Draw configulation
     for (section_key, section) in zip(config_template.keys(), config_template.values()):
         st_ = st if section_key == "general" else st.sidebar
         if section_key != "params":
@@ -70,12 +58,10 @@ def main():
                         .index(config[section_key][item['name']]),
                         help=item['help']
                     )
-                    opt = item['options'].index(config[section_key][item['name']])
 
         elif section_key == "params":
-            # Set initial parameter and create slide bar
+            # Set initial parameter and create side bar input forms
             st_.header(section['title'])
-
             param_names = []
             initials = []
             param_lowers = []
@@ -99,6 +85,7 @@ def main():
                     label="Upper", key=param['name'] + " max", value=float(param['max']), format=format)
                 param['min'] = st_.number_input(
                     label="Lower", key=param['name'] + " min", value=float(param['min']), format=format)
+                
                 param_names.append(param['name'])
                 initials.append(param['initial'])
                 param_lowers.append(param['min'])
@@ -117,7 +104,6 @@ def main():
 
 
     if measurement_files:
-
         # Depending on the number of files uploaded, generate an input form 
         # for the directory name to store the individual fitting results.
         dir_names = []
@@ -137,6 +123,7 @@ def main():
 
             initials_temp = np.empty(0) # Create a empty ndarray
             all_parameter_values = [] # Create a empty list
+
             for (measurement_file, dir_name) in zip(measurement_files, dir_names):
 
                 # Read data from measurement files
@@ -196,7 +183,7 @@ def main():
             fit.show_data(freq, z_measured, z_calc, param_names,
                         param_values, param_units, loss)
 
-        # Save button and saving data
+        # "Save data" button and saving data
         comment = st.text_input("Comment", value="")
         save = st.button("Save data")
         if save:
@@ -204,15 +191,7 @@ def main():
                 st.write("Comment is required")
             else:
                 path_results = config['general']['result path']
-                fit.move_data(comment, path_results)
-
-            # test
-            # print(config)
-            # print(freq_list)
-            # print(z_measured_list)
-            # print(freq_)
-            # print(z_measured_)
-            # print(initials)
+                fit.save_data(comment, path_results)
 
     elif config_file is not None:
         # if only configuration file is available, show theoritical data
