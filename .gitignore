@@ -2,7 +2,6 @@
 results/*
 !results/sample-results
 temporary/*
-!temporary/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
