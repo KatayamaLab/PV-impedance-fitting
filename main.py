@@ -170,6 +170,7 @@ def main():
                 # Calculate impedance using fitted parameters
                 z_calc = func(freq, param_values)
 
+                # Store data in a 'temporary' directory
                 if dir_name == "":
                     st.write("Directory name is required")
                 else:
@@ -177,7 +178,7 @@ def main():
                     fit.save_temporary_data(dir_name, freq, z_measured, z_calc,
                                             param_names, param_values, param_units, config)
                     
-                    # フィッティングパラメータの統合ファイルを生成
+                    # Generate a csv file with all parameters organized
                     all_parameter_values.append(voltages.extend(list(param_values)))
                     fit.save_all_parameters(all_parameter_values, param_names)
             
