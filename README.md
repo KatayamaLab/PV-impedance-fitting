@@ -14,7 +14,8 @@ Python : 3.11.3
 - matplotlib : 3.7.1
 
 その他のパッケージ情報についてはrequirements.txtを参照。
+
 requirements.txtを使用してパッケージのインストールをする。
-```shell:Install packages by requirement.txt
+```shell
 $ pip3 install -r requirements.txt
 ```
