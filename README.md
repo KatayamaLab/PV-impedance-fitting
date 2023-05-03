@@ -8,4 +8,5 @@
 - numpy: 1.24.3
 - pandas: 2.0.1
 - plotly: 5.14.1
+- matplotlib==3.7.1
 - その他のパッケージ情報についてはrequirements.txtを参照
