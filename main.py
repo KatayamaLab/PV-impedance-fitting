@@ -73,8 +73,6 @@ def main():
                     param['name'] + "(" + (param['unit'] if 'unit' in param else "-") + ")")
                 param['initial'] = st_.number_input(
                     label="Value",
-                    min_value=float(param['min']),
-                    max_value=float(param['max']),
                     value=float(param['initial']),
                     step=float(param['max']-param['min'])/100,
                     key=param['name'],
@@ -153,6 +151,8 @@ def main():
 
                 # Keep fitting results temporarily.
                 initials_temp = param_values
+                st.session_state['params'] = param_values
+                st.session_state['loss'] = loss
 
                 # Calculate impedance using fitted parameters
                 z_calc = func(freq, param_values)
@@ -176,8 +176,15 @@ def main():
                         param_values, param_units, loss)
         
         else:
-            param_values = initials
-            loss = None
+            if 'params' in st.session_state:
+                param_values = st.session_state['params']
+            else:
+                param_values = initials
+            
+            if 'loss' in st.session_state:
+                loss = st.session_state['loss']
+            else:
+                loss = None
         
             # Show first data
             freq, z_measured, voltages = fit.read_data(measurement_files[0], type)
