@@ -8,7 +8,7 @@ general:
     - name: file types
       label: 測定データのタイプ/Type of data
       type: selection
-      options: [IM3590, FRA5095, KFM2030]
+      options: [IM3590, FRA5095, KFM2030, TG]
       help: 測定データのタイプを選べます。
 fitting:
   title: Fitting config

@@ -21,7 +21,6 @@ class FIT():
     def __init__(self):
         self.errors = []
         self.error = False
-        self.data = []
     
     def __del__(self):
         pass
@@ -71,7 +70,6 @@ class FIT():
         return local['func']
     
     def read_data(self, measurement_file, type="FRA5095"):
-        data = self.data
         voltages = []
         if type == "IM3590":
             data = np.loadtxt(measurement_file, delimiter="\t")
@@ -96,6 +94,11 @@ class FIT():
                     continue
             freq = data[:, 0]
             z_measured = data[:, 1] + 1j * data[:, 2]
+
+        elif type == "TG":
+            data = np.loadtxt(measurement_file, delimiter=",")
+            freq = data[:, 0]
+            z_measured = data[:, 1] * np.cos(np.radians(data[:, 2])) + 1j * data[:, 1] * np.sin(np.radians(data[:, 2]))
 
         return freq, z_measured, voltages
 
