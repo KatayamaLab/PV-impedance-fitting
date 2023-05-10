@@ -178,16 +178,18 @@ def main():
         else:
             if 'params' in st.session_state:
                 param_values = st.session_state['params']
+                show_file = measurement_files[-1]
             else:
                 param_values = initials
-            
+                show_file = measurement_files[0]
+
             if 'loss' in st.session_state:
                 loss = st.session_state['loss']
             else:
                 loss = None
-        
+                
             # Show first data
-            freq, z_measured, voltages = fit.read_data(measurement_files[0], type)
+            freq, z_measured, voltages = fit.read_data(show_file, type)
             z_calc = func(freq, param_values)
             fit.show_data(freq, z_measured, z_calc, param_names,
                         param_values, param_units, loss)
@@ -201,6 +203,7 @@ def main():
             else:
                 path_results = config['general']['result path']
                 fit.save_data(comment, path_results)
+                st.write("Saving is success!")
 
     elif config_file is not None:
         # if only configuration file is available, show theoritical data

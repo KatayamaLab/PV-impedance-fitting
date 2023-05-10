@@ -193,9 +193,6 @@ class FIT():
         st.text("Mean square error: {}".format(loss))
     
     def save_temporary_data(self, dir_name, freq, z_measured, z_calc, param_names, param_values, param_units, config):
-        # Remove 'temporary' directory
-        shutil.rmtree('./temporary')
-
         # Remove prohibited characters from path name.
         dir_name = re.sub(r'[\\/:*?"<>|]+', ' ', dir_name)
 
