@@ -118,9 +118,10 @@ def main():
 
         # Fitting
         if st.button("Fit!", help="Do Fitting!"):
-
-            initials_temp = np.empty(0) # Create a empty ndarray
-            all_parameter_values = [] # Create a empty list
+            # Create a empty ndarray
+            initials_temp = np.empty(0)
+            # Create a empty list
+            all_parameter_values = []
 
             for (measurement_file, dir_name) in zip(measurement_files, dir_names):
 
@@ -188,7 +189,7 @@ def main():
             else:
                 loss = None
                 
-            # Show first data
+            # Show data
             freq, z_measured, voltages = fit.read_data(show_file, type)
             z_calc = func(freq, param_values)
             fit.show_data(freq, z_measured, z_calc, param_names,

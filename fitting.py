@@ -80,10 +80,14 @@ class FIT():
             data = np.loadtxt(measurement_file, delimiter=",", skiprows=1)
             freq = data[:, 1]
             z_measured = data[:, 4] + 1j * data[:, 5]
-            voltages.append(data[1, 6]) # set DC voltage
-            voltages.append(data[1, 7]) # DC voltage
-            voltages.append(data[1, 8]) # set AC voltage
-            voltages.append(data[1, 9]) # AC voltage
+            # set DC voltage
+            voltages.append(data[1, 6])
+            # DC voltage
+            voltages.append(data[1, 7])
+            # set AC voltage
+            voltages.append(data[1, 8])
+            # AC voltage
+            voltages.append(data[1, 9])
             
         elif type == "KFM2030":
             for i in range(100):
