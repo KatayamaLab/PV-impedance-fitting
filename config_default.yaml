@@ -12,6 +12,11 @@ params:
     initial: 1
     max: 1.0e+6
     unit: Ω
+  - name: "Ls"
+    min: 0
+    initial: 1.0e-6
+    max: 1
+    unit: H
   - name: "Rp"
     min: 0
     initial: 75000
@@ -20,7 +25,7 @@ params:
   - name: "Tcpe"
     min: 0
     initial: 1.76e-9
-    max: 2.0e-8
+    max: 1
     unit: Fs^(p-1)
   - name: "p"
     min: 0
@@ -29,4 +34,4 @@ params:
 func:
   defs:
   - CPE = 1
-  expr: Rs + 1/(1/Rp + ((1j*2*3.14159*f)**p)*Tcpe)
+  expr: Rs + 1j*2*3.14159265359*f*Ls + 1/(1/Rp + ((1j*2*3.14159265359*f)**p)*Tcpe)
