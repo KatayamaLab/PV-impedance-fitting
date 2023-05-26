@@ -169,8 +169,9 @@ def main():
                     # Generate a csv file with all parameters organized
                     voltages.extend(list(param_values))
                     all_parameter_values_ = voltages
+                    all_parameter_values_.append(loss)
                     all_parameter_values.append(all_parameter_values_)
-                    fit.save_all_parameters(all_parameter_values, param_names, loss, type)
+                    fit.save_all_parameters(all_parameter_values, param_names, type)
             
             # Show last data
             fit.show_data(freq, z_measured, z_calc, param_names,

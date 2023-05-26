@@ -238,17 +238,15 @@ class FIT():
         plt.tight_layout()
         fig.savefig(os.path.join(result_dir, "figure.png"))
 
-    def save_all_parameters(self, all_parameter_values, param_names, loss, type="FRA5095"):
+    def save_all_parameters(self, all_parameter_values, param_names, type="FRA5095"):
         if type == "FRA5095":
             all_parameter_names = ["set_DC_volt", "DC_volt", "set_AC_volt", "AC_volt"]
             all_parameter_names.extend(list(param_names))
-            all_parameter_names.extend(loss)
             
         else:
             all_parameter_names = list(param_names)
-            all_parameter_names.extend("loss")
 
-        all_parameter_values.extend(loss)
+        all_parameter_names.append("loss")
         pd.DataFrame(data=np.array(all_parameter_values), columns=all_parameter_names
                     ).to_csv(os.path.join('./temporary', "all_parameters.csv"))
 
