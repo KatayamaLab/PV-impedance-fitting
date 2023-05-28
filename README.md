@@ -12,6 +12,7 @@ Python : 3.11.3
 - pandas : 2.0.1
 - plotly : 5.14.1
 - matplotlib : 3.7.1
+- altair : 4.2.2
 
 その他のパッケージ情報についてはrequirements.txtを参照。
 
