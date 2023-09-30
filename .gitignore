@@ -1,6 +1,5 @@
 # Ignore firectories and files(Items set by the developer)
 results/*
-!results/sample-results
 temporary/*
 .DS_Store
 
