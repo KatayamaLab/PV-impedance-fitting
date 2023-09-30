@@ -24,7 +24,7 @@ params:
     unit: Ω
   - name: "Tcpe"
     min: 0
-    initial: 1.76e-9
+    initial: 1.70e-9
     max: 1
     unit: Fs^(p-1)
   - name: "p"
@@ -33,5 +33,5 @@ params:
     max: 1
 func:
   defs:
-  - CPE = 1
+    - CPE = 1
   expr: Rs + 1j*2*3.14159265359*f*Ls + 1/(1/Rp + ((1j*2*3.14159265359*f)**p)*Tcpe)
