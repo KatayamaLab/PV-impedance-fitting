@@ -8,7 +8,7 @@ import fitting
 
 
 def main():
-    fit = fitting.FIT()
+    fit = fitting.Fitting()
 
     # Create file upload form for  measurement data and configuration
     st.sidebar.title("Impedance fitting")
