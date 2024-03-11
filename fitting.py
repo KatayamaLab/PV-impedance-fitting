@@ -18,7 +18,7 @@ import builtins
 import shutil
 
 
-class FIT:
+class Fitting:
     def __init__(self):
         self.errors = []
         self.error = False
